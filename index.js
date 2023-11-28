@@ -20,10 +20,39 @@ async function run(){
         console.log('Real State connected successfully!');
 
         // collections
-        const propertiesCollection = client.db('RealState').collection('properties')
+        const propertiesCollection = client.db('RealState').collection('properties');
+        const userCollection = client.db('RealState').collection('user')
+        const paymentCollection = client.db('RealState').collection('payment')
+        const landlordCollection = client.db('RealState').collection('landlord')
+        const bookingCollection = client.db('RealState').collection('booking')
 
+        // properties
         app.get('/properties' , async(req,res)=>{
             const result = await propertiesCollection.find().toArray();
+            res.send(result);
+        })
+
+        // user
+        app.get('/user' , async(req,res)=>{
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        })
+
+        //payment
+        app.get('/payment' , async(req,res)=>{
+            const result = await paymentCollection.find().toArray();
+            res.send(result);
+        }) 
+
+        // landlord
+        app.get('/landlord' , async(req,res)=>{
+            const result = await landlordCollection.find().toArray();
+            res.send(result);
+        })
+
+        // booking
+        app.get('/booking' , async(req,res)=>{
+            const result = await bookingCollection.find().toArray();
             res.send(result);
         })
 
