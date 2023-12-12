@@ -41,7 +41,18 @@ async function run(){
         const rentCollection = client.db('RealState').collection('rent');
         const usersCollection = client.db('RealState').collection('users');
 
-        // rent 
+        // verify admin middleware
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'admin') {
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
+        // get rent info
         app.get('/rent' , async(req,res)=>{
             const result = await rentCollection.find().toArray();
             res.send(result);
@@ -67,6 +78,27 @@ async function run(){
             const result = await usersCollection.insertOne(user);
             res.send(result);
         } )
+
+        // show all users
+        app.get('/users', async(req, res) =>{
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        } )
+
+        // make admin api
+        app.patch('/users/admin/:id', async(req, res)=>{
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                },
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+
 
     }
     finally{
