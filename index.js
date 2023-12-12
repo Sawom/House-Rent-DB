@@ -40,7 +40,9 @@ async function run(){
         // collections
         const rentCollection = client.db('RealState').collection('rent');
         const usersCollection = client.db('RealState').collection('users');
+        const cartCollection = client.db('RealState').collection('carts');
 
+        // ***********jwt token part**********
         // create jwt token. client side thek call dite hobe
         app.post('/jwt', (req,res)=>{
             const user = req.body;
@@ -59,7 +61,10 @@ async function run(){
             }
             next();
         }
+        // ***********end jwt token part**********
 
+
+        // ***********rent apartment part**********
         // get rent info
         app.get('/rent' , async(req,res)=>{
             const result = await rentCollection.find().toArray();
@@ -73,7 +78,10 @@ async function run(){
             const result = await rentCollection.findOne(query);
             res.send(result);
         })
+        // ***********end rent apartment part**********
 
+
+        // ***********user admin part**********
         // user collect to database
         app.post('/users', async(req,res) =>{
             const user = req.body;
@@ -127,8 +135,29 @@ async function run(){
             const result = await usersCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+        // ***********end user admin part**********
 
 
+        // ***********add to cart part**********
+        // post cart to database
+        app.post('/carts', async(req,res) =>{
+            const item = req.body;
+            console.log(item);
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        })
+
+        // get cart info email wise
+        app.get('/carts', async(req, res)=>{
+            const email = req.query.email;
+            if(!email){
+                res.send([]);
+            }
+            const query = { email: email };
+            const result = await cartCollection.find(query).toArray();
+            res.send(result);
+        })
+        // ***********end add to cart part**********
 
     }
     finally{
