@@ -41,6 +41,14 @@ async function run(){
         const rentCollection = client.db('RealState').collection('rent');
         const usersCollection = client.db('RealState').collection('users');
 
+        // create jwt token. client side thek call dite hobe
+        app.post('/jwt', (req,res)=>{
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'})
+            
+            res.send({token})
+        } )
+
         // verify admin middleware
         const verifyAdmin = async (req, res, next) => {
             const email = req.decoded.email;
@@ -79,10 +87,32 @@ async function run(){
             res.send(result);
         } )
 
+        // delete users
+        app.delete('/users/:id', async(req,res) =>{
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // show all users
         app.get('/users', async(req, res) =>{
             const result = await usersCollection.find().toArray();
             res.send(result);
+        } )
+
+        // check user admin or not
+        app.get('/users/admin/:email', async(req, res)=>{
+            const email = req.params.email;
+            // 2ta token same kina
+            if(req.decoded.email !== email ){
+                res.send( {admin: false} )
+            }
+            const query = {email: email}
+            const user = await usersCollection.findOne(query);
+            const result = { admin: user?.role === 'admin'}
+            res.send(result);
+            
         } )
 
         // make admin api
