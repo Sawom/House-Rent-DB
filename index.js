@@ -39,6 +39,7 @@ async function run(){
 
         // collections
         const rentCollection = client.db('RealState').collection('rent');
+        const usersCollection = client.db('RealState').collection('users');
 
         // rent 
         app.get('/rent' , async(req,res)=>{
@@ -53,6 +54,19 @@ async function run(){
             const result = await rentCollection.findOne(query);
             res.send(result);
         })
+
+        // user collect to database
+        app.post('/users', async(req,res) =>{
+            const user = req.body;
+            const query = {email: user.email}
+            const existingUser = await usersCollection.findOne(query);
+            console.log( 'existingUser: ', existingUser);
+            if(existingUser){
+                return res.send({ message: 'user already exists!' })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        } )
 
     }
     finally{
