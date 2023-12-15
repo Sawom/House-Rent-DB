@@ -41,6 +41,7 @@ async function run(){
         const rentCollection = client.db('RealState').collection('rent');
         const usersCollection = client.db('RealState').collection('users');
         const cartCollection = client.db('RealState').collection('carts');
+        const recentCollection = client.db('RealState').collection('recent')
 
         // ***********jwt token part**********
         // create jwt token. client side thek call dite hobe
@@ -62,6 +63,14 @@ async function run(){
             next();
         }
         // ***********end jwt token part**********
+
+
+        // *****recent data part*****
+        app.get('/recent' , async(req,res)=>{
+            const result = await recentCollection.find().toArray();
+            res.send(result);
+        })
+        // *****end recent data part*****
 
 
         // ***********rent apartment part**********
