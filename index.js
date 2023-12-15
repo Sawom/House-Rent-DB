@@ -41,13 +41,14 @@ async function run(){
         const rentCollection = client.db('RealState').collection('rent');
         const usersCollection = client.db('RealState').collection('users');
         const cartCollection = client.db('RealState').collection('carts');
-        const recentCollection = client.db('RealState').collection('recent')
+        const recentCollection = client.db('RealState').collection('recent');
 
         // ***********jwt token part**********
-        // create jwt token. client side thek call dite hobe
+
+        // create jwt token.
         app.post('/jwt', (req,res)=>{
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'})
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '12h'})
             
             res.send({token})
         } )
@@ -63,6 +64,23 @@ async function run(){
             next();
         }
         // ***********end jwt token part**********
+
+
+        // *****cart*****
+        app.get('/carts', verifyJWT, async(req, res)=>{
+            const email = req.query.email;
+            if(!email){
+                res.send([]);
+            }
+
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'forbidden access' })
+            }
+            const query = { email: email };
+            const result = await cartCollection.find(query).toArray();
+            res.send(result);
+        } )
 
 
         // *****recent data part*****
@@ -118,8 +136,8 @@ async function run(){
             res.send(result);
         } )
 
-        // check user admin or not
-        app.get('/users/admin/:email', async(req, res)=>{
+        //** */ check user admin or not
+        app.get('/users/admin/:email', verifyJWT, async(req, res)=>{
             const email = req.params.email;
             // 2ta token same kina
             if(req.decoded.email !== email ){
@@ -157,7 +175,7 @@ async function run(){
         })
 
         // get cart info email wise
-        app.get('/carts', async(req, res)=>{
+        app.get('/carts', verifyJWT, async(req, res)=>{
             const email = req.query.email;
             if(!email){
                 res.send([]);
