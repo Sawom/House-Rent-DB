@@ -10,6 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// jwt token
+const jwt = require('jsonwebtoken');
+
 // verify jwt
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -67,6 +70,7 @@ async function run(){
 
 
         // *****cart*****
+        // get cart email wise
         app.get('/carts', verifyJWT, async(req, res)=>{
             const email = req.query.email;
             if(!email){
@@ -82,7 +86,15 @@ async function run(){
             res.send(result);
         } )
 
+        app.post('/carts', async(req,res) =>{
+            const item = req.body;
+            console.log(item);
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        })
+        //***** end cart system *****
 
+        
         // *****recent data part*****
         app.get('/recent' , async(req,res)=>{
             const result = await recentCollection.find().toArray();
@@ -164,27 +176,6 @@ async function run(){
         })
         // ***********end user admin part**********
 
-
-        // ***********add to cart part**********
-        // post cart to database
-        app.post('/carts', async(req,res) =>{
-            const item = req.body;
-            console.log(item);
-            const result = await cartCollection.insertOne(item);
-            res.send(result);
-        })
-
-        // get cart info email wise
-        app.get('/carts', verifyJWT, async(req, res)=>{
-            const email = req.query.email;
-            if(!email){
-                res.send([]);
-            }
-            const query = { email: email };
-            const result = await cartCollection.find(query).toArray();
-            res.send(result);
-        })
-        // ***********end add to cart part**********
 
     }
     finally{
