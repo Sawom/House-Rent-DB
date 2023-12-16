@@ -92,9 +92,18 @@ async function run(){
             const result = await cartCollection.insertOne(item);
             res.send(result);
         })
+
+        // delete cart data
+        app.delete('/carts/:id', async(req,res) =>{
+            const id = req.params.id;
+            const query  = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        } )
+
         //***** end cart system *****
 
-        
+
         // *****recent data part*****
         app.get('/recent' , async(req,res)=>{
             const result = await recentCollection.find().toArray();
