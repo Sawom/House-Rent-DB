@@ -45,6 +45,7 @@ async function run(){
         const usersCollection = client.db('RealState').collection('users');
         const cartCollection = client.db('RealState').collection('carts');
         const recentCollection = client.db('RealState').collection('recent');
+        const bookingCollection = client.db('RealState').collection('booking');
 
         // ***********jwt token part**********
 
@@ -67,6 +68,36 @@ async function run(){
             next();
         }
         // ***********end jwt token part**********
+
+
+        // *****booking*****
+
+        // add booking
+        app.post('/booking', async(req,res)=>{
+            const newBooking = req.body;
+            const result = await bookingCollection.insertOne(newBooking);
+            res.send(result);
+        })
+
+        // get booking data email wise
+        app.get('/booking', async(req,res)=>{
+            const email = req.query.email;
+            if(!email){
+                res.send([]);
+            }
+            const query = { email: email };
+            const result = await bookingCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        // delete booking
+        app.delete('/booking/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await bookingCollection.deleteOne(query);
+            res.send(result);
+        })
+        // *****end booking*****
 
 
         // *****cart*****
