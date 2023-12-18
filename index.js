@@ -97,6 +97,18 @@ async function run(){
             const deleteResult = await cartCollection.deleteMany(query)
             res.send({ insertResult, deleteResult });
         })
+
+        // get payment data email wise
+        app.get('/payments', async(req,res)=>{
+            const email = req.query.email;
+            if(!email){
+                res.send([]);
+            }
+            const query = { email: email };
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // *****end payment*****
 
 
