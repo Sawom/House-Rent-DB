@@ -72,11 +72,26 @@ async function run(){
 
 
         // *****reviews part*****
+        // get review
         app.get('/review' , async(req, res)=>{
             const result = await reviewsCollection.find().toArray();
             res.send(result);
         } )
 
+        // review delete
+        app.delete('/review/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
+        } )
+
+        // add reviews
+        app.post('/review', async(req,res)=>{
+            const newReview = req.body;
+            const result = await reviewsCollection.insertOne(newReview);
+            res.send(result);
+        })
         // *****end reviews part*****
 
 
