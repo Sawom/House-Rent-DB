@@ -1,0 +1,32 @@
+[
+  {
+    "review": "I found the perfect home for my family through House Rent! The process was smooth, and the options were extensive. Highly recommended.",
+    "name": "Farida Rahman",
+    "profession": "Teacher",
+    "rating": 5
+  },
+  {
+    "review": "House Rent made my relocation to Dhaka stress-free. The listings were accurate, and the support from the team was excellent. Thanks!",
+    "name": "Kamrul Islam",
+    "profession": "IT Professional",
+    "rating": 5
+  },
+  {
+    "review": "As a student, finding affordable accommodation was a challenge. House Rent's user-friendly interface and diverse listings made it easy for me to find a place within my budget.",
+    "name": "Sabrina Ahmed",
+    "profession": "Student",
+    "rating": 5
+  },
+  {
+    "review": "House Rent exceeded my expectations! The customer service was prompt, and I found a beautiful home in a great neighborhood. Very satisfied with the experience.",
+    "name": "Tariq Khan",
+    "profession": "Marketing Executive",
+    "rating": 4
+  },
+  {
+    "review": "I recently moved to Chittagong and used House Rent to find my new apartment. The website's layout is intuitive, and the detailed property descriptions helped me make an informed decision. Great service!",
+    "name": "Nusrat Jahan",
+    "profession": "Banker",
+    "rating": 5
+  }
+]

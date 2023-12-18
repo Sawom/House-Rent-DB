@@ -46,6 +46,7 @@ async function run(){
         const cartCollection = client.db('RealState').collection('carts');
         const recentCollection = client.db('RealState').collection('recent');
         const bookingCollection = client.db('RealState').collection('booking');
+        const reviewsCollection = client.db('RealState').collection('review');
 
         // ***********jwt token part**********
 
@@ -70,8 +71,16 @@ async function run(){
         // ***********end jwt token part**********
 
 
-        // *****booking*****
+        // *****reviews part*****
+        app.get('/review' , async(req, res)=>{
+            const result = await reviewsCollection.find().toArray();
+            res.send(result);
+        } )
 
+        // *****end reviews part*****
+
+
+        // *****booking*****
         // add booking
         app.post('/booking', async(req,res)=>{
             const newBooking = req.body;
