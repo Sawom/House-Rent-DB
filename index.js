@@ -222,6 +222,15 @@ async function run(){
             const result = await rentCollection.findOne(query);
             res.send(result);
         })
+
+        // delete apartment
+        app.delete('/rent/:id',  verifyJWT, async(req, res)=>{
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await rentCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // ***********end rent apartment part**********
 
 
