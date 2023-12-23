@@ -224,12 +224,19 @@ async function run(){
         })
 
         // delete apartment
-        app.delete('/rent/:id',  verifyJWT, async(req, res)=>{
+        app.delete('/rent/:id', async(req, res)=>{
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await rentCollection.deleteOne(query);
             res.send(result);
         })
+
+        // add apartment
+        app.post('/rent',  async(req, res)=>{
+            const newApartment = req.body;
+            const result = await rentCollection.insertOne(newApartment);
+            res.send(result);
+        } )
 
         // ***********end rent apartment part**********
 
@@ -262,7 +269,15 @@ async function run(){
             res.send(result);
         } )
 
-        //** */ check user admin or not
+        // single user get
+        app.get('/users/profile', verifyJWT, async(req,res)=>{
+            const userId = req.user._id;
+            const query = { _id: new ObjectId(userId) };
+            const result = await usersCollection.findOne(query);
+            res.send(result);
+        })
+
+        //** check user admin or not
         app.get('/users/admin/:email', verifyJWT, async(req, res)=>{
             const email = req.params.email;
             // 2ta token same kina
