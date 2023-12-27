@@ -238,6 +238,38 @@ async function run(){
             res.send(result);
         } )
 
+        // update
+        app.put('/rent/:id' , async(req,res)=>{
+            const id = req.params.id;
+            const updateRent = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const options = {upsert: true};
+
+            const updateDoc = {
+                $set:{
+                    category: updateRent.category,
+                    img1: updateRent.img1,
+                    img2: updateRent.img2,
+                    gender: updateRent.gender,
+                    propertytype: updateRent.propertytype,
+                    balcony: updateRent.balcony,
+                    bedroom: updateRent.bedroom,
+                    bathroom: updateRent.bathroom,
+                    floor: updateRent.floor,
+                    division: updateRent.division,
+                    district: updateRent.district,
+                    thana: updateRent.thana,
+                    availablefrom: updateRent.availablefrom,
+                    rent: updateRent.rent,
+                    additionalInfo: updateRent.additionalInfo,
+                    addBy: updateRent.addBy,
+                    email: updateRent.email,
+                    phone: updateRent.phone
+                }
+            }
+
+        } )
+
         // ***********end rent apartment part**********
 
 
