@@ -240,13 +240,12 @@ async function run() {
       res.send(result);
     });
 
-    // add apartment
-    app.post("/rent", async (req, res) => {
-      const newApartment = req.body;
-      console.log("rewapartment", newApartment);
-      const result = await rentCollection.insertOne(newApartment);
-      res.send(result);
-    });
+        // add apartment
+        app.post('/rent',  async(req, res)=>{
+            const newApartment = req.body;
+            const result = await rentCollection.insertOne(newApartment);
+            res.send(result);
+        } )
 
     // ***********end rent apartment part**********
 
