@@ -1,3 +1,4 @@
+const admin = require("./config/firebase.config");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -15,7 +16,7 @@ app.use(express.json());
 const jwt = require("jsonwebtoken");
 
 // verify jwt
-const verifyJWT = (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
     return res
@@ -25,15 +26,38 @@ const verifyJWT = (req, res, next) => {
 
   const token = authorization.split(" ")[1];
 
+  // res.send(token);
+
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      return res
-        .status(401)
-        .send({ error: true, message: "unauthorized access" });
+      return res.status(401).send({ error: true, message: err });
     }
     req.decoded = decoded;
     next();
   });
+  // try {
+  //   // console.log("token: ", token);
+  //   const decodeValue = await admin.auth().verifyIdToken(token);
+  //   console.log("decode : ", decodeValue);
+  //   if (!decodeValue) {
+  //     return res
+  //       .status(500)
+  //       .json({ success: false, message: "Unauthorized user" });
+  //   } else {
+  //     return req.user = decodeValue;
+  //   }
+
+  // checking the user already exist or not
+  // const existUser = await users.findOne({ userId: decodeValue.user_id });
+  // res.send(existUser);
+  // if (!existUser) {
+  //   createNewUser(decodeValue, req, res);
+  // } else {
+  //   updateUserData(decodeValue, req, res);
+  // }
+  // } catch (error) {
+  //   return res.status(500).send({ success: false, message: error });
+  // }
 };
 
 // connection
@@ -240,12 +264,12 @@ async function run() {
       res.send(result);
     });
 
-        // add apartment
-        app.post('/rent',  async(req, res)=>{
-            const newApartment = req.body;
-            const result = await rentCollection.insertOne(newApartment);
-            res.send(result);
-        } )
+    // add apartment
+    app.post("/rent", async (req, res) => {
+      const newApartment = req.body;
+      const result = await rentCollection.insertOne(newApartment);
+      res.send(result);
+    });
 
     // ***********end rent apartment part**********
 
@@ -279,6 +303,7 @@ async function run() {
 
     // single user get
     app.get("/users/profile", verifyJWT, async (req, res) => {
+      console.log("user", req.user);
       const userId = req.user._id;
       const query = { _id: new ObjectId(userId) };
       const result = await usersCollection.findOne(query);
