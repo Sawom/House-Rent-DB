@@ -27,37 +27,39 @@ const verifyJWT = async (req, res, next) => {
   const token = authorization.split(" ")[1];
 
   // res.send(token);
+  // const token = localStorage.getItem("access-token");
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({ error: true, message: err });
-    }
-    req.decoded = decoded;
-    next();
-  });
-  // try {
-  //   // console.log("token: ", token);
-  //   const decodeValue = await admin.auth().verifyIdToken(token);
-  //   console.log("decode : ", decodeValue);
-  //   if (!decodeValue) {
-  //     return res
-  //       .status(500)
-  //       .json({ success: false, message: "Unauthorized user" });
-  //   } else {
-  //     return req.user = decodeValue;
+  // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+  //   if (err) {
+  //     return res.status(401).send({ error: true, message: err });
   //   }
+  //   req.decoded = decoded;
+  //   next();
+  // });
+  try {
+    // console.log("backend token: ", token);
+    const decodeValue = await admin.auth().verifyIdToken(token);
+    // console.log("decode : ", decodeValue);
+    if (!decodeValue) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Unauthorized user" });
+    } else {
+      req.user = decodeValue;
+    }
 
-  // checking the user already exist or not
-  // const existUser = await users.findOne({ userId: decodeValue.user_id });
-  // res.send(existUser);
-  // if (!existUser) {
-  //   createNewUser(decodeValue, req, res);
-  // } else {
-  //   updateUserData(decodeValue, req, res);
-  // }
-  // } catch (error) {
-  //   return res.status(500).send({ success: false, message: error });
-  // }
+    // checking the user already exist or not
+    // const existUser = await users.findOne({ userId: decodeValue.user_id });
+    // res.send(existUser);
+    // if (!existUser) {
+    //   createNewUser(decodeValue, req, res);
+    // } else {
+    //   updateUserData(decodeValue, req, res);
+    // }
+  } catch (error) {
+    return res.status(500).send({ success: false, message: error });
+  }
+  next();
 };
 
 // connection
@@ -201,12 +203,14 @@ async function run() {
     // *****cart*****
     // get cart email wise
     app.get("/carts", verifyJWT, async (req, res) => {
-      const email = req.query.email;
+      // console.log("cart email: ", req.user);
+      const email = req.user.email;
       if (!email) {
         res.send([]);
       }
 
-      const decodedEmail = req.decoded.email;
+      const decodedEmail = req.user.email;
+      // console.log("email: ", decodedEmail, email);
       if (email !== decodedEmail) {
         return res
           .status(403)
@@ -279,7 +283,7 @@ async function run() {
       const user = req.body;
       const query = { email: user.email };
       const existingUser = await usersCollection.findOne(query);
-      console.log("existingUser: ", existingUser);
+      // console.log("existingUser: ", existingUser);
       if (existingUser) {
         return res.send({ message: "user already exists!" });
       }
@@ -303,16 +307,17 @@ async function run() {
 
     // single user get
     app.get("/users/profile", verifyJWT, async (req, res) => {
-      console.log("user", req.user);
-      const userId = req.user._id;
-      const query = { _id: new ObjectId(userId) };
-      const result = await usersCollection.findOne(query);
+      // console.log("decoded user", req.user);
+      const userId = req.user.email;
+      // const query = { email: new ObjectId(userId) };
+      const result = await usersCollection.findOne({ email: userId });
       res.send(result);
     });
 
     //** check user admin or not
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
+      // console.log("admin email: ", email);
       // 2ta token same kina
       if (req.decoded.email !== email) {
         res.send({ admin: false });
