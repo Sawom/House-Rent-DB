@@ -111,28 +111,27 @@ async function run() {
 
     // *****payment*****
     // create payment intent
-    app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+    app.post("/create-payment-intent",  async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
-        currency: "usd",
+        currency: "bdt",
         payment_method_types: ["card"],
       });
 
       res.send({
         clientSecret: paymentIntent.client_secret,
-      });
-    });
+      })
+    })
 
     // payment add to database
-    app.post("/payments", verifyJWT, async (req, res) => {
+    app.post("/payments",  async (req, res) => {
       const payment = req.body;
       const insertResult = await paymentCollection.insertOne(payment);
       const query = {
-        _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) },
-      };
-      const deleteResult = await cartCollection.deleteMany(query);
+        _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) }};
+      const deleteResult = await cartCollection.deleteMany(query)
       res.send({ insertResult, deleteResult });
     });
 
@@ -314,6 +313,36 @@ async function run() {
       res.send(result);
     });
 
+    // update user
+    // load a single use to update
+    app.get("/users/profile/:id", async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)};
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    } )
+
+    // update user
+    app.put("/users/profile/:id", async(req, res)=>{
+      const id = req.params.id;
+      const updateUser = req.body;
+      const filter  = { _id: new ObjectId(id)};
+      const options = {upsert : true};
+
+      const updateDoc = {
+        $set:{
+          name: updateUser.name,
+          phone: updateUser.phone,
+          email: updateUser.email, 
+          address: updateUser.address
+        },
+      };
+
+      const result = await usersCollection.updateOne(filter,updateDoc,options )
+      res.send(result);
+      // console.log('update = ', result);
+    })
+
     //** check user admin or not
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -335,6 +364,7 @@ async function run() {
       const updateDoc = {
         $set: {
           role: "admin",
+          type: "admin",
         },
       };
       const result = await usersCollection.updateOne(filter, updateDoc);
