@@ -86,14 +86,14 @@ async function run() {
 
     // ***********jwt token part**********
     // create jwt token.
-    app.post("/jwt", (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "12h",
-      });
+    // app.post("/jwt", (req, res) => {
+    //   const user = req.body;
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: "12h",
+    //   });
 
-      res.send({ token });
-    });
+    //   res.send({ token });
+    // });
 
     // verify admin middleware
     const verifyAdmin = async (req, res, next) => {
@@ -111,7 +111,7 @@ async function run() {
 
     // *****payment*****
     // create payment intent
-    app.post("/create-payment-intent",  async (req, res) => {
+    app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
       const paymentIntent = await stripe.paymentIntents.create({
@@ -122,16 +122,17 @@ async function run() {
 
       res.send({
         clientSecret: paymentIntent.client_secret,
-      })
-    })
+      });
+    });
 
     // payment add to database
-    app.post("/payments",  async (req, res) => {
+    app.post("/payments", async (req, res) => {
       const payment = req.body;
       const insertResult = await paymentCollection.insertOne(payment);
       const query = {
-        _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) }};
-      const deleteResult = await cartCollection.deleteMany(query)
+        _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) },
+      };
+      const deleteResult = await cartCollection.deleteMany(query);
       res.send({ insertResult, deleteResult });
     });
 
@@ -222,7 +223,7 @@ async function run() {
 
     app.post("/carts", async (req, res) => {
       const item = req.body;
-      console.log(item);
+      // console.log(item);
       const result = await cartCollection.insertOne(item);
       res.send(result);
     });
@@ -315,33 +316,37 @@ async function run() {
 
     // update user
     // load a single use to update
-    app.get("/users/profile/:id", async(req, res)=>{
+    app.get("/users/profile/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await usersCollection.findOne(query);
       res.send(result);
-    } )
+    });
 
     // update user
-    app.put("/users/profile/:id", async(req, res)=>{
+    app.put("/users/profile/:id", async (req, res) => {
       const id = req.params.id;
       const updateUser = req.body;
-      const filter  = { _id: new ObjectId(id)};
-      const options = {upsert : true};
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
 
       const updateDoc = {
-        $set:{
+        $set: {
           name: updateUser.name,
           phone: updateUser.phone,
-          email: updateUser.email, 
-          address: updateUser.address
+          email: updateUser.email,
+          address: updateUser.address,
         },
       };
 
-      const result = await usersCollection.updateOne(filter,updateDoc,options )
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send(result);
       // console.log('update = ', result);
-    })
+    });
 
     //** check user admin or not
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
